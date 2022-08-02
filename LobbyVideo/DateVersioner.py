@@ -45,13 +45,14 @@ class DateVersioner(Processor):
             notime = self.env["notime"]
         except KeyError:
             notime = False
-            self.output("notime is %s" % notime)
-        self.env["version"] = (
-            str(datetime.date.today()) + "_" + str(time.strftime("%H-%M-%S"))
+            self.output(f"notime is {notime}")
+        self.env["version"] = f"{str(datetime.date.today())}_" + str(
+            time.strftime("%H-%M-%S")
         )
+
         if notime:
             self.env["version"] = str(datetime.date.today())
-        self.output("Version is set to %s" % self.env["version"])
+        self.output(f'Version is set to {self.env["version"]}')
 
 
 if __name__ == "__main__":

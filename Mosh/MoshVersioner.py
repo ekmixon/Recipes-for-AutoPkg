@@ -57,7 +57,7 @@ class MoshVersioner(Processor):
             unfixed = pkgrefs[1].attributes["version"].value.encode("UTF-8")
             # At this point, unfixed_version is typically "mosh-1.x.x"
             self.env["version"] = unfixed.lstrip(b"mosh-").decode()
-            self.output("Found version: %s" % self.env["version"])
+            self.output(f'Found version: {self.env["version"]}')
         else:
             raise ProcessorError(
                 "An error occurred while extracting Distribution file"

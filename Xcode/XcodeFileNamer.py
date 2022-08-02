@@ -82,28 +82,16 @@ class XcodeFileNamer(Processor):
 
     def main(self):
         """Main."""
-        if not self.env["should_produce_versioned_name"] and self.env["is_beta"]:
-            # Default name for Xcode Beta
-            self.env["xcode_filename"] = "Xcode-beta"
+        if not self.env["should_produce_versioned_name"]:
+            self.env["xcode_filename"] = "Xcode-beta" if self.env["is_beta"] else "Xcode"
             return
-        elif not self.env["should_produce_versioned_name"]:
-            # Default name for Xcode
-            self.env["xcode_filename"] = "Xcode"
-            return
-        # end up with xcode_10.2.0_beta_4 or xcode_10.2.1
-        prefix = "Xcode"
-        if self.env.get("should_lowercase"):
-            prefix = "xcode"
-        name = "{}_{}.{}.{}".format(
-            prefix,
-            self.env["major_version"],
-            self.env["minor_version"],
-            self.env["patch_version"],
-        )
+        prefix = "xcode" if self.env.get("should_lowercase") else "Xcode"
+        name = f'{prefix}_{self.env["major_version"]}.{self.env["minor_version"]}.{self.env["patch_version"]}'
+
         if self.env["is_beta"]:
-            name = name + "_beta_{}".format(self.env.get("beta_version", "0"))
+            name += f'_beta_{self.env.get("beta_version", "0")}'
         name += self.env.get("suffix", "")
-        self.output("Xcode name: {}".format(name))
+        self.output(f"Xcode name: {name}")
         self.env["xcode_filename"] = name
 
 

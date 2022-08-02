@@ -35,13 +35,12 @@ class FakeSecHead(object):
         self.sechead = "[properties]\n"
 
     def readline(self):
-        if self.sechead:
-            try:
-                return self.sechead
-            finally:
-                self.sechead = None
-        else:
+        if not self.sechead:
             return self.fp.readline()
+        try:
+            return self.sechead
+        finally:
+            self.sechead = None
 
 
 class SQLDeveloperVersioner(Processor):
@@ -74,7 +73,7 @@ class SQLDeveloperVersioner(Processor):
         except IOError as err:
             raise ProcessorError(err)
         self.env["version"] = cp.get("properties", "ver_full")
-        self.output("Version: %s" % self.env["version"])
+        self.output(f'Version: {self.env["version"]}')
 
 
 if __name__ == "__main__":

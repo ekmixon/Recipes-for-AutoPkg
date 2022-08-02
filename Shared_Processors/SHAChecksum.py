@@ -50,8 +50,7 @@ class SHAChecksum(Processor):
         sha_args = self.env.get("checksum_type", None)
         cmd = ["/usr/bin/shasum"]
         if sha_args:
-            cmd.append("-a")
-            cmd.append(sha_args)
+            cmd.extend(("-a", sha_args))
         cmd.append(self.env["source_file"])
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (shaout, shaerr) = proc.communicate()

@@ -65,13 +65,11 @@ class IntellijURLProvider(URLGetter):
         # Determine values.
         version_url = self.env.get("version_url", intellij_version_url)
         version = self.get_intellij_version(version_url)
-        download_url = "https://download.jetbrains.com/idea/" "ideaI%s-%s.dmg" % (
-            self.env.get("edition", "C"),
-            version,
-        )
+        download_url = f'https://download.jetbrains.com/idea/ideaI{self.env.get("edition", "C")}-{version}.dmg'
+
 
         self.env["url"] = download_url
-        self.output("URL: %s" % self.env["url"])
+        self.output(f'URL: {self.env["url"]}')
 
 
 if __name__ == "__main__":

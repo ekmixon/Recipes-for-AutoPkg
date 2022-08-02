@@ -32,7 +32,7 @@ __all__ = ["AndroidExtraXMLParser"]
 
 
 def get_element_children_dict(element, schema):
-    result_dict = dict()
+    result_dict = {}
     tag = ""
     if len(element.getchildren()) >= 1:
         for child in element.getchildren():
@@ -42,9 +42,11 @@ def get_element_children_dict(element, schema):
                 # the tag name gets the value of the text
             else:
                 # if there are children, each child needs to be converted into a dict
-                templist = list()
-                for newchild in child.getchildren():
-                    templist.append(get_element_children_dict(newchild, schema))
+                templist = [
+                    get_element_children_dict(newchild, schema)
+                    for newchild in child.getchildren()
+                ]
+
                 result_dict[tag] = templist
     else:
         # no grandchildren
@@ -55,22 +57,21 @@ def get_element_children_dict(element, schema):
 def find_value_in_dict(thedict, key):
     """Iterate through a dict to find all matching keys, even if inside another
     dict."""
-    resultlist = list()
+    resultlist = []
     if key not in thedict:
         # it might be buried inside a dict as a value
         for value in thedict.values():
             if type(value) == list:
-                templist = list()
+                templist = []
                 for newvalue in value:
-                    result = find_value_in_dict(newvalue, key)
-                    if result:
+                    if result := find_value_in_dict(newvalue, key):
                         templist.append(result)
                 if len(templist) == 1:
                     resultlist = templist[0]
                 else:
                     resultlist.extend(templist)
     else:
-        "Adding to dict 2 %s" % key
+        f"Adding to dict 2 {key}"
         resultlist.append(thedict[key])
     return resultlist
 
@@ -107,18 +108,18 @@ class AndroidExtraXMLParser(Processor):
         root = tree.getroot()
         schema = root.tag.split("}")[0] + "}"
         # Look for everything else
-        match = root.findall("%s%s" % (schema, "extra"))
+        match = root.findall(f"{schema}extra")
         # Now look through the records
         for record in match:
             result_dict = get_element_children_dict(record, schema)
             # We match records by name-display field
-            if record.find("%sname-display" % schema).text != self.env["name"]:
+            if record.find(f"{schema}name-display").text != self.env["name"]:
                 continue
             for key, outputVar in self.env["tags"].iteritems():
-                print("Key: %s" % key)
+                print(f"Key: {key}")
                 if key == "license":
                     # Look for license - it's a special case
-                    match = root.findall("%s%s" % (schema, "license"))
+                    match = root.findall(f"{schema}license")
                     self.env[self.env["tags"]["license"]] = (
                         match[-1].text.encode("ascii", "ignore").encode("string-escape")
                     )
@@ -126,12 +127,10 @@ class AndroidExtraXMLParser(Processor):
                     continue
                 if key == "uses-license":
                     self.env[self.env["tags"]["uses-license"]] = record.find(
-                        "%s%s" % (schema, "uses-license")
+                        f"{schema}uses-license"
                     ).attrib["ref"]
-                    self.output(
-                        "Found license-ref: %s"
-                        % self.env[self.env["tags"]["uses-license"]]
-                    )
+
+                    self.output(f'Found license-ref: {self.env[self.env["tags"]["uses-license"]]}')
                     continue
                 # Look for revision - third special case
                 if key == "revision":
@@ -142,15 +141,11 @@ class AndroidExtraXMLParser(Processor):
                         "minor", ""
                     )
                     micro = find_value_in_dict(result_dict, "revision")[0][2]["micro"]
-                    self.env[self.env["tags"]["revision"]] = "%s.%s.%s" % (
-                        major,
-                        minor,
-                        micro,
-                    )
-                    self.output("Revision: %s" % self.env[self.env["tags"]["revision"]])
+                    self.env[self.env["tags"]["revision"]] = f"{major}.{minor}.{micro}"
+                    self.output(f'Revision: {self.env[self.env["tags"]["revision"]]}')
                     continue
                 value = find_value_in_dict(result_dict, key)
-                print("Found value: %s" % value)
+                print(f"Found value: {value}")
 
 
 if __name__ == "__main__":

@@ -55,7 +55,7 @@ class InstallsArrayFineTuning(Processor):
             for install in current:
                 if install["path"] == path:
                     install["type"] = newtype
-                    self.output("Replacing type for %s to %s" % (path, newtype))
+                    self.output(f"Replacing type for {path} to {newtype}")
         self.env["changed_pkginfo"] = current
 
 

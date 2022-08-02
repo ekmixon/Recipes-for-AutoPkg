@@ -43,17 +43,11 @@ class ChefArray(Processor):
     __doc__ = description
 
     def main(self):
-        beginning_bracket = "[\n"
         iterator = "item"
-        end_bracket = "]"
         each_text = ".each do |%s|\n" % iterator
-        quotes = "'"
-        itemlist = list()
+        itemlist = []
 
-        # Are we going to use wrapping quotes?
-        if self.env.get("no_wrap_quotes"):
-            quotes = ""
-
+        quotes = "" if self.env.get("no_wrap_quotes") else "'"
         # Check to see if one item was passed as a single string
         if isinstance(self.env["item_list"], basestring):
             if self.env["remove_version"]:
@@ -66,12 +60,14 @@ class ChefArray(Processor):
             self.env["array_block"] = self.env["item_list"] + each_text
         else:
             itemlist = self.env["item_list"]
+            beginning_bracket = "[\n"
             # Begin the block
             self.env["array_block"] = beginning_bracket
             # Loop through the array of items
             for item in itemlist:
-                self.output("Item: %s" % item)
+                self.output(f"Item: {item}")
                 self.env["array_block"] += "  %s%s%s,\n" % (quotes, str(item), quotes)
+            end_bracket = "]"
             # End the block
             self.env["array_block"] += end_bracket
             # Remove the trailing comma on the last item

@@ -79,15 +79,15 @@ class DirectoryList(Processor):
         pattern = self.env.get("pattern")
         method = self.env.get("find_method")
 
-        format_string = "%s" % self.env["suffix_string"]
+        format_string = f'{self.env["suffix_string"]}'
         search_string = "{0}"
         if method == "glob":
             self.env["found_filenames"] = search_string.format(
                 format_string.join(self.globfind(pattern))
             ).strip()
         else:
-            raise ProcessorError("Unsupported find_method: %s" % method)
-        self.output("Found matches: %s" % self.env["found_filenames"])
+            raise ProcessorError(f"Unsupported find_method: {method}")
+        self.output(f'Found matches: {self.env["found_filenames"]}')
 
 
 if __name__ == "__main__":

@@ -56,18 +56,18 @@ class AndroidSDKVersioner(Processor):
                 raise ProcessorError(err)
         root = tree.getroot()
         schema = root.tag.split("}")[0] + "}"
-        match = root.findall("%s%s" % (schema, "tool"))
-        revision = "%srevision" % schema
+        match = root.findall(f"{schema}tool")
+        revision = f"{schema}revision"
         result = ""
         try:
-            major = match[-1].find(revision).find("%smajor" % schema).text
-            minor = match[-1].find(revision).find("%sminor" % schema).text
-            micro = match[-1].find(revision).find("%smicro" % schema).text
+            major = match[-1].find(revision).find(f"{schema}major").text
+            minor = match[-1].find(revision).find(f"{schema}minor").text
+            micro = match[-1].find(revision).find(f"{schema}micro").text
         except IndexError:
             raise ProcessorError("Version not found!")
-        result = "%s.%s.%s" % (major, minor, micro)
+        result = f"{major}.{minor}.{micro}"
         self.env["version"] = result
-        self.output("Version: %s" % self.env["version"])
+        self.output(f'Version: {self.env["version"]}')
 
 
 if __name__ == "__main__":

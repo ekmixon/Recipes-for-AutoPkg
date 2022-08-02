@@ -65,7 +65,7 @@ class AppleCookieDownloader(Processor):
 
         if request_headers:
             for header, value in request_headers.items():
-                curl_cmd.extend(["--header", "%s: %s" % (header, value)])
+                curl_cmd.extend(["--header", f"{header}: {value}"])
 
         if curl_opts:
             for item in curl_opts:
@@ -83,9 +83,7 @@ class AppleCookieDownloader(Processor):
 
         donewithheaders = False
         maxheaders = 15
-        header = {}
-        header["http_result_code"] = "000"
-        header["http_result_description"] = ""
+        header = {"http_result_code": "000", "http_result_description": ""}
         while True:
             if not donewithheaders:
                 info = proc.stdout.readline().decode().strip("\r\n")
@@ -114,9 +112,7 @@ class AppleCookieDownloader(Processor):
                     ]:
                         # redirect, so more headers are coming.
                         # Throw away the headers we've received so far
-                        header = {}
-                        header["http_result_code"] = "000"
-                        header["http_result_description"] = ""
+                        header = {"http_result_code": "000", "http_result_description": ""}
                     else:
                         donewithheaders = True
             else:
@@ -140,7 +136,7 @@ class AppleCookieDownloader(Processor):
             except IndexError:
                 pass
 
-            raise ProcessorError("Curl failure: %s (exit code %s)" % (curlerr, retcode))
+            raise ProcessorError(f"Curl failure: {curlerr} (exit code {retcode})")
 
     def main(self):
         download_dir = os.path.join(self.env["RECIPE_CACHE_DIR"], "downloads")
@@ -162,10 +158,11 @@ class AppleCookieDownloader(Processor):
             "--request",
             "POST",
             "--data",
-            "@{}".format(self.env["login_data"]),
+            f'@{self.env["login_data"]}',
             "--cookie-jar",
             login_cookies,
         ]
+
         self.download(
             url="https://idmsa.apple.com/IDMSWebAuth/authenticate",
             curl_opts=login_curl_opts,
@@ -228,9 +225,7 @@ class AppleCookieDownloader(Processor):
         (stdout, stderr) = proc.communicate()
         if proc.returncode:
             gzerr = stderr.rstrip("\n")
-            raise ProcessorError(
-                "Gunzip failure: %s (exit code %s)" % (gzerr, proc.returncode)
-            )
+            raise ProcessorError(f"Gunzip failure: {gzerr} (exit code {proc.returncode})")
 
 
 if __name__ == "__main__":

@@ -76,46 +76,47 @@ class AndroidXMLParser(Processor):
                 raise ProcessorError(err)
         root = tree.getroot()
         schema = root.tag.split("}")[0] + "}"
-        match = root.findall("%s%s" % (schema, self.env["namespace"]))
+        match = root.findall(f'{schema}{self.env["namespace"]}')
         for key, outputVar in self.env["tags"].iteritems():
             for item in match[-1]:
                 if item.tag.replace(schema, "") == key:
                     self.env[outputVar] = item.text
-                    self.output("Found %s as %s" % (key, self.env[outputVar]))
+                    self.output(f"Found {key} as {self.env[outputVar]}")
                     break
             if key == "uses-license" and ("license" in self.env["tags"].keys()):
                 # Special case since the license isn't a traditional key
                 license_ref = item.attrib["ref"]
-                self.output("Found license ref: %s" % license_ref)
+                self.output(f"Found license ref: {license_ref}")
                 self.env[outputVar] = license_ref
                 self.env[self.env["tags"]["license"]] = (
                     root[0].text.encode("ascii", "ignore").encode("string-escape")
                 )
             if key == "url":
                 # It's easy to find the URL here, the structure is always the same
-                archives = "%sarchives" % schema
-                archive = "%sarchive" % schema
-                url = "%surl" % schema
+                archives = f"{schema}archives"
+                archive = f"{schema}archive"
+                url = f"{schema}url"
                 # Look for a host os
-                host_os = "%shost-os" % schema
+                host_os = f"{schema}host-os"
                 archive_list = match[-1].find(archives).findall(archive)
                 for arch in archive_list:
-                    if arch.find(host_os) is not None:
-                        # If there's a "host-os" in the archive
-                        if "macosx" in arch.find(host_os).text:
-                            # Look for a Mac version
-                            self.env[outputVar] = arch.find(url).text.encode(
-                                "ascii", "ignore"
-                            )
-                            # self.output("Found %s as %s" % (key, self.env[outputVar]))
-                            break
+                    if (
+                        arch.find(host_os) is not None
+                        and "macosx" in arch.find(host_os).text
+                    ):
+                        # Look for a Mac version
+                        self.env[outputVar] = arch.find(url).text.encode(
+                            "ascii", "ignore"
+                        )
+                        # self.output("Found %s as %s" % (key, self.env[outputVar]))
+                        break
                 else:
                     # No host os was provided, so assume they're not platform specific
                     # So we return the first item
                     self.env[outputVar] = (
                         match[-1].find(archives).find(archive).find(url).text
                     )
-                    self.output("Found: %s" % self.env[outputVar])
+                    self.output(f"Found: {self.env[outputVar]}")
 
 
 if __name__ == "__main__":

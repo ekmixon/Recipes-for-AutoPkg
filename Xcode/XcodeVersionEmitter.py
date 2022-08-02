@@ -63,17 +63,13 @@ class XcodeVersionEmitter(Processor):
         # "https://download.developer.apple.com/Developer_Tools/Xcode_10.2.1/Xcode_10.2.1.xip"  # noqa
         # "https://developer.apple.com//services-account/download?path=/Developer_Tools/Xcode_11_Beta_2/Xcode_11_Beta_2.xip"  # noqa
         filename = os.path.splitext(os.path.basename(url_split_object.path))[0].lower()
-        self.output("Derived filename: {}".format(filename))
+        self.output(f"Derived filename: {filename}")
         self.env["derived_filename"] = filename
 
         destination = os.path.expandvars(self.env["output_filepath"])
         with open(destination, "w") as f:
             f.write(filename)
-            self.output(
-                "Derived filename ({}) written to disk at {}".format(
-                    filename, destination
-                )
-            )
+            self.output(f"Derived filename ({filename}) written to disk at {destination}")
 
 
 if __name__ == "__main__":

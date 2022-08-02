@@ -87,24 +87,21 @@ class ChefLaunchd(Processor):
         each_do_beginning = "[\n"
         each_do_end = ".each do |item|\n"
         self.env["chef_block"] = each_do_beginning
-        name = "item"
-        notif_text = "not_if"
-        onlyif_text = "only_if"
         indent_block = ""
 
         # Should this block be indented?
-        if self.env.get("%sextra_indentation" % prefix):
+        if self.env.get(f"{prefix}extra_indentation"):
             self.output("Adding indentation.")
             indent_block = "  "
-            end_text = "  " + end_text
+            end_text = f"  {end_text}"
             extra_formatting = "  "
         # Should this end an indented block?
-        if self.env.get("%sindentation_end" % prefix):
-            end_text = end_text + "end\n"
+        if self.env.get(f"{prefix}indentation_end"):
+            end_text += "end\n"
 
         # Check to see if only one item was passed
         if len(self.env["resource_name"].split(",")) == 1:
-            if self.env.get("%sresource_array" % prefix):
+            if self.env.get(f"{prefix}resource_array"):
                 # it's a node variable representating an array
                 self.env["chef_block"] = (
                     indent_block
@@ -124,9 +121,10 @@ class ChefLaunchd(Processor):
         else:
             for resource_name in self.env["resource_name"].split(","):
                 self.env["chef_block"] += "  %s,\n" % resource_name
-            self.env["chef_block"] += "]" + each_do_end
+            self.env["chef_block"] += f"]{each_do_end}"
             # Remove trailing comma
             self.env["chef_block"] = self.env["chef_block"].replace(",\n]", "\n]")
+            name = "item"
             self.env["chef_block"] += "%s %s do\n" % (block_name, name)
             # Insert an extra tab before everything
             extra_formatting = "  "
@@ -135,31 +133,35 @@ class ChefLaunchd(Processor):
         input_list = sorted(self.input_variables.keys())
         # Start the block
         # Remove the indentation keys
-        input_list.remove("%sextra_indentation" % prefix)
-        input_list.remove("%sindentation_end" % prefix)
+        input_list.remove(f"{prefix}extra_indentation")
+        input_list.remove(f"{prefix}indentation_end")
         # Place not_if guards first
-        if self.env.get("%snot_if" % prefix):
+        if self.env.get(f"{prefix}not_if"):
+            notif_text = "not_if"
             self.env["chef_block"] += "%s  %s %s\n" % (
                 extra_formatting,
                 notif_text,
-                self.env["%snot_if" % prefix],
+                self.env[f"{prefix}not_if"],
             )
-            input_list.remove("%snot_if" % prefix)
+
+            input_list.remove(f"{prefix}not_if")
         # Place only_if guards next
-        if self.env.get("%sonly_if" % prefix):
+        if self.env.get(f"{prefix}only_if"):
+            onlyif_text = "only_if"
             self.env["chef_block"] += "%s  %s %s\n" % (
                 extra_formatting,
                 onlyif_text,
-                self.env["%sonly_if" % prefix],
+                self.env[f"{prefix}only_if"],
             )
-            input_list.remove("%sonly_if" % prefix)
+
+            input_list.remove(f"{prefix}only_if")
         # Remove the special keys
-        input_list.remove("%sresource_array" % prefix)
+        input_list.remove(f"{prefix}resource_array")
         input_list.remove("resource_name")
         # Loop through all remaining keys
         for key in input_list:
             if self.env.get(key, ""):
-                key_text = "%s" % key.replace("%s" % prefix, "")
+                key_text = f'{key.replace(f"{prefix}", "")}'
                 self.env["chef_block"] += "%s  %s %s\n" % (
                     extra_formatting,
                     key_text,
@@ -171,10 +173,10 @@ class ChefLaunchd(Processor):
         self.env["chef_block"] += end_text + "\n"
         self.output("Chef block:\n%s" % self.env["chef_block"])
         # Clean up the keys that weren't iterated through
-        self.env["%sextra_indentation" % prefix] = ""
-        self.env["%sindentation_end" % prefix] = ""
-        self.env["%snot_if" % prefix] = ""
-        self.env["%sonly_if" % prefix] = ""
+        self.env[f"{prefix}extra_indentation"] = ""
+        self.env[f"{prefix}indentation_end"] = ""
+        self.env[f"{prefix}not_if"] = ""
+        self.env[f"{prefix}only_if"] = ""
 
 
 if __name__ == "__main__":

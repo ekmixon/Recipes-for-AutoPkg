@@ -75,10 +75,7 @@ class XcodeVersioner(Processor):
         framework_bundle = objc.loadBundle(  # NOQA
             f_name, bundle_path=f_path, module_globals=loaded
         )
-        desired = {}
-        for x in class_whitelist:
-            if x in loaded:
-                desired[x] = loaded[x]
+        desired = {x: loaded[x] for x in class_whitelist if x in loaded}
         return namedtuple("AttributedFramework", desired.keys())(**desired)
 
     def xcode_info(self, app_path):
@@ -92,8 +89,7 @@ class XcodeVersioner(Processor):
         x_info = DVTFoundation.DVTToolsInfo.toolsInfo()
         x_v = x_info.toolsVersion()
         x_b = x_info.toolsBuildVersion()
-        app_info = []
-        app_info.append(["major_version", str(x_v.versionMajorComponent())])
+        app_info = [["major_version", str(x_v.versionMajorComponent())]]
         app_info.append(["minor_version", str(x_v.versionMinorComponent())])
         app_info.append(["patch_version", str(x_v.versionUpdateComponent())])
         app_info.append(["build_version", x_b.name()])
@@ -115,27 +111,25 @@ class XcodeVersioner(Processor):
                 "literally everything again."
             )
         self.env["major_version"] = str(split_string[0])
-        self.output("Major version: %s" % self.env["major_version"])
+        self.output(f'Major version: {self.env["major_version"]}')
         self.env["minor_version"] = str(split_string[1])
-        self.output("Minor version: %s" % self.env["minor_version"])
+        self.output(f'Minor version: {self.env["minor_version"]}')
         try:
             self.env["patch_version"] = split_string[2]
         except IndexError:
             self.output("Normalizing patch to 0")
-            self.env["patch_version"] = str("0")
+            self.env["patch_version"] = "0"
         self.env["is_beta"] = False
         xcode_info_results = self.xcode_info(self.env["app_path"])
-        xcode_data = {}
-        for info_pair in xcode_info_results:
-            xcode_data[info_pair[0]] = info_pair[1]
+        xcode_data = {info_pair[0]: info_pair[1] for info_pair in xcode_info_results}
         if xcode_data["is_beta"]:
-            self.output("Beta version: %s" % xcode_data["beta_version"])
+            self.output(f'Beta version: {xcode_data["beta_version"]}')
             self.env["is_beta"] = xcode_data["is_beta"]
             self.env["beta_version"] = xcode_data["beta_version"]
-        self.output("Patch version: %s" % self.env["patch_version"])
+        self.output(f'Patch version: {self.env["patch_version"]}')
 
         self.env["build_version"] = xcode_data["build_version"]
-        self.output("Build version: %s" % self.env["build_version"])
+        self.output(f'Build version: {self.env["build_version"]}')
 
 
 if __name__ == "__main__":

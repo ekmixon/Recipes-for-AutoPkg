@@ -63,7 +63,7 @@ class ChefAttributeList(Processor):
                 os.path.join(self.env["path_prefix"], value)
             )
         self.env["chef_block"] += "]\n"
-        self.output("Chef block: %s" % self.env["chef_block"])
+        self.output(f'Chef block: {self.env["chef_block"]}')
         self.env["attribute_variable"] = att_prefix.replace("default", "node")
 
 

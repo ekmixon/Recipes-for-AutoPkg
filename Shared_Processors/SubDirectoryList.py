@@ -58,17 +58,17 @@ class SubDirectoryList(Processor):
 
     def main(self):
         sip_dirs = ["usr", "usr/local", "private", "private/etc", "Library"]
-        format_string = "%s" % self.env["suffix_string"]
+        format_string = f'{self.env["suffix_string"]}'
         # search_string = '  \'{0}\''
         search_string = "{0}"
-        dir_list = list()
-        file_list = list()
+        dir_list = []
+        file_list = []
         if not os.path.isdir(self.env["root_path"]):
             raise ProcessorError("Can't find root path!")
         for dirName, subdirList, fileList in os.walk(self.env["root_path"]):
             relative_path = os.path.relpath(dirName, self.env["root_path"])
             # We need to remove the SIP folders so Chef doesn't try to create them
-            if not relative_path == "." and not (relative_path in sip_dirs):
+            if relative_path != "." and relative_path not in sip_dirs:
                 dir_list.append(relative_path)
             # search_string.format(format_string.join(dirName)).strip()
             for fname in fileList:
@@ -78,7 +78,7 @@ class SubDirectoryList(Processor):
                 relpath = os.path.relpath(
                     os.path.join(fname, dirName), self.env["root_path"]
                 )
-                self.output("Relative path: %s" % relpath)
+                self.output(f"Relative path: {relpath}")
                 if relpath == ".":
                     # we want to avoid prepending './' to files at root dir
                     relpath = ""

@@ -82,13 +82,11 @@ class AdoptOpenJDKURLProvider(URLGetter):
         if binary_type not in ["pkg", "tgz"]:
             raise ProcessorError("jdk_type can only be 'pkg' or 'tgz'")
         release = self.env.get("release", "latest")
-        queries = "?os=mac&openjdk_impl={}&type={}&release={}".format(
-            jvm_type, jdk_type, release
-        )
+        queries = f"?os=mac&openjdk_impl={jvm_type}&type={jdk_type}&release={release}"
         # Fetch the API data
-        query_suffix = urljoin("openjdk{}".format(self.env["jdk_version"]), queries)
+        query_suffix = urljoin(f'openjdk{self.env["jdk_version"]}', queries)
         api_url = urljoin(URL, query_suffix)
-        self.output("Query URL: {}".format(api_url))
+        self.output(f"Query URL: {api_url}")
         api_data = self.download(api_url, text=True)
         api_results = json.loads(api_data)
         # Determine what we're looking for - pkg or tgz
@@ -102,14 +100,14 @@ class AdoptOpenJDKURLProvider(URLGetter):
         # hasn't been anything particularly problematic
         version = api_results["binaries"][0]["version_data"]["semver"]
         self.env["version"] = version
-        self.output("Version: {}".format(version))
+        self.output(f"Version: {version}")
         # Get the checksum from the internet
         checksum = self.get_checksum(checksum_url, binary_type)
         self.env["checksum"] = checksum
-        self.output("checksum: {}".format(checksum))
+        self.output(f"checksum: {checksum}")
         # Pick the URL
         self.env["url"] = url
-        self.output("Found URL {}".format(self.env["url"]))
+        self.output(f'Found URL {self.env["url"]}')
 
 
 if __name__ == "__main__":

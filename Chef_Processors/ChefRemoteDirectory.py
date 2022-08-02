@@ -163,14 +163,12 @@ class ChefRemoteDirectory(Processor):
             end_text = "\tend\nend\n\n"
         else:
             name = self.env["chef_block"]
-        notif_text = "\tnot_if"
-        onlyif_text = "\tonly_if"
-
         input_list = sorted(self.input_variables.keys())
         # Start the block
         self.env["remote_directory"] += "%s %s do\n" % (block_name, name)
         # Place not_if guards first
         if self.env.get("not_if"):
+            notif_text = "\tnot_if"
             self.env["remote_directory"] += "%s\t%s %s\n" % (
                 extra_formatting,
                 notif_text,
@@ -179,6 +177,8 @@ class ChefRemoteDirectory(Processor):
             input_list.remove("not_if")
         # Place only_if guards next
         if self.env.get("only_if"):
+            onlyif_text = "\tonly_if"
+
             self.env["remote_directory"] += "%s\t%s %s\n" % (
                 extra_formatting,
                 onlyif_text,

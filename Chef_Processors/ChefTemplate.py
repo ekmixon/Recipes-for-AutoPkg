@@ -181,14 +181,12 @@ class ChefTemplate(Processor):
             end_text = "\tend\nend\n"
         else:
             name = self.env["resource_name"]
-        notif_text = "\tnot_if"
-        onlyif_text = "\tonly_if"
-
         input_list = sorted(self.input_variables.keys())
         # Start the block
         self.env["chef_block"] += "%s %s do\n" % (block_name, name)
         # Place not_if guards first
         if self.env.get("not_if"):
+            notif_text = "\tnot_if"
             self.env["chef_block"] += "%s\t%s %s\n" % (
                 extra_formatting,
                 notif_text,
@@ -197,6 +195,8 @@ class ChefTemplate(Processor):
             input_list.remove("not_if")
         # Place only_if guards next
         if self.env.get("only_if"):
+            onlyif_text = "\tonly_if"
+
             self.env["chef_block"] += "%s\t%s %s\n" % (
                 extra_formatting,
                 onlyif_text,

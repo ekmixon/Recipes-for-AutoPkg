@@ -61,11 +61,11 @@ class ConfigureMakeInstaller(Processor):
             cmd.append("--prefix=" + self.env["prefix_path"])
 
         # ./configure
-        self.output("Command: %s" % cmd)
+        self.output(f"Command: {cmd}")
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (conf_out, conf_err) = proc.communicate()
         if conf_err:
-            raise ProcessorError("./configure error: %s" % conf_err)
+            raise ProcessorError(f"./configure error: {conf_err}")
         self.output(conf_out)
 
         # make
@@ -82,8 +82,8 @@ class ConfigureMakeInstaller(Processor):
         destpath = self.env.get("output_path")
         cmd = ["/usr/bin/make", "install", "-f", makefile]
         if destpath:
-            cmd.append("DESTDIR=" + destpath)
-        self.output("install cmd: %s" % cmd)
+            cmd.append(f"DESTDIR={destpath}")
+        self.output(f"install cmd: {cmd}")
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (mi_out, mi_err) = proc.communicate()
         # if mi_err:

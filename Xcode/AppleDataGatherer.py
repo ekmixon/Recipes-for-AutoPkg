@@ -64,8 +64,8 @@ class AppleDataGatherer(Processor):
 
     def main(self):
         """Store the login data file."""
-        appleIDstring = "appleId={}&".format(quote(self.env["apple_id"]))
-        appIDKeystring = "appIdKey={}&".format(self.env["appID_key"])
+        appleIDstring = f'appleId={quote(self.env["apple_id"])}&'
+        appIDKeystring = f'appIdKey={self.env["appID_key"]}&'
         if not self.env.get("password") and not self.env.get("password_file"):
             raise ProcessorError(
                 "You must provide either a password, or a password_file argument."
@@ -74,7 +74,7 @@ class AppleDataGatherer(Processor):
         if self.env.get("password_file"):
             with open(self.env["password_file"]) as f:
                 password = f.read()
-        passwordstring = "accountPassword={}".format(password)
+        passwordstring = f"accountPassword={password}"
 
         login_data = appleIDstring + appIDKeystring + passwordstring
         download_dir = os.path.join(self.env["RECIPE_CACHE_DIR"], "downloads")

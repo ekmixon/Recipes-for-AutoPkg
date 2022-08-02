@@ -49,7 +49,7 @@ class ConfigHeaderVersioner(Processor):
     __doc__ = description
 
     def main(self):
-        print("Version key: %s" % self.env["version_key"])
+        print(f'Version key: {self.env["version_key"]}')
         try:
             with open(self.env["header_file"], "rb") as f:
                 for line in f:
@@ -61,10 +61,10 @@ class ConfigHeaderVersioner(Processor):
                     raise ProcessorError("Version key not found in file!")
         except IOError as err:
             raise ProcessorError(err)
-        self.output("Version line found: %s" % version_line)
+        self.output(f"Version line found: {version_line}")
         # The line is typically: #define PACKAGE_VERSION <version>
         self.env["version"] = version_line.split(" ")[2].rstrip().strip('"')
-        self.output("Version found: %s" % self.env["version"])
+        self.output(f'Version found: {self.env["version"]}')
 
 
 if __name__ == "__main__":

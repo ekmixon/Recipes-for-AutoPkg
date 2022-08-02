@@ -61,10 +61,7 @@ class XcodeBuildNumberEmitter(Processor):
         with open(destination, "w") as f:
             f.write(build_number)
             self.output(
-                "Xcode build number ({}) written to disk at {}".format(
-                    build_number,
-                    destination,
-                )
+                f"Xcode build number ({build_number}) written to disk at {destination}"
             )
 
 
